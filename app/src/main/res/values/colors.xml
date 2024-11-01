@@ -6,4 +6,6 @@
     <color name="dark_blue">#1A237E</color>
     <color name="view">#000000</color>
     <color name="shadow">#FFFFFF</color>
+    <color name="blue_istra">#A2BFFE</color>
+    <color name="green_istra">#72FFA4</color>
 </resources>
