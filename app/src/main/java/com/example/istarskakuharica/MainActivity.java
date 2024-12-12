@@ -2,35 +2,26 @@ package com.example.istarskakuharica;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.viewpager2.widget.ViewPager2;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ViewPager2 viewPager;
-    private Handler handler;
-    private Runnable runnable;
-
-    private final int[] images = {
-            R.drawable.home_image_buje,
-            R.drawable.home_image_labin,
-            R.drawable.home_image_motovun,
-            R.drawable.home_image_pazin,
-            R.drawable.home_image_buje,
-            R.drawable.home_image_porec,
-            R.drawable.home_image_pula,
-            R.drawable.home_image_rovinj,
-            R.drawable.home_image_umag
-    };
+    private RecipeAdapter recipeAdapter;
+    private ArrayList<Recipe> recipes;
+    private ArrayList<Recipe> filteredRecipes;
+    private TextView emptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,32 +29,44 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        viewPager = findViewById(R.id.slideShow);
-        ImageSlider imageSlider = new ImageSlider(images);
-        viewPager.setAdapter(imageSlider);
+        SearchView searchView = findViewById(R.id.searchView);
+        RecyclerView recipeView = findViewById(R.id.recipesView);
 
-        MaterialButton buttonStart = findViewById(R.id.button_start);
-        buttonStart.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+        recipeView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        recipes = new ArrayList<>();
+        filteredRecipes = new ArrayList<>();
+        recipes.add(new Recipe("Dagnje na buzaru", new String[]{
+                "Očisti dagnje",
+                "Stavi ih kuhat",
+                "Napravi nešto",
+                "Serviraj"}, R.drawable.recipe_image_dagnje, "45 min", "blue"));
+        recipes.add(new Recipe("Škampi na buzaru", new String[]{"2."}, R.drawable.recipe_image_skampi, "30 min", "blue"));
+        recipes.add(new Recipe("Fuži s tartufima", new String[]{"3."}, R.drawable.recipe_image_fuzitartufi, "60 min", "green"));
+        recipes.add(new Recipe("Maneštra", new String[]{"4."}, R.drawable.recipe_image_manestra, "50 min", "green"));
+        recipes.add(new Recipe("Jota", new String[]{"5."}, R.drawable.recipe_image_jota, "40 min", "green"));
+        recipes.add(new Recipe("Žgvacet", new String[]{"6."}, R.drawable.recipe_image_zgvacet, "40 min", "green"));
+        recipes.add(new Recipe("Pjukanci s kozicama", new String[]{"7."}, R.drawable.recipe_image_zgvacet, "60 min", "green"));
+        recipes.add(new Recipe("Istarska supa", new String[]{"8."}, R.drawable.recipe_image_zgvacet, "1 h", "green"));
+
+        recipeAdapter = new RecipeAdapter(recipes, recipe -> {
+            Intent intent = new Intent(this, RecipeActivity.class);
+            intent.putExtra("recipeTitle", recipe.getTitle());
+            intent.putExtra("recipeSteps", recipe.getSteps());
             startActivity(intent);
         });
+        recipeView.setAdapter(recipeAdapter);
 
-        handler = new Handler(Looper.getMainLooper());
-        runnable = new Runnable() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void run() {
-                int nextItem = (viewPager.getCurrentItem() + 1) % images.length;
-                viewPager.setCurrentItem(nextItem, true);
-                handler.postDelayed(this, 3000);
+            public boolean onQueryTextSubmit(String query) {
+                return false;
             }
-        };
-        handler.postDelayed(runnable, 3000);
 
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
-            public void onPageSelected(int position) {
-                handler.removeCallbacks(runnable);
-                handler.postDelayed(runnable, 3000);
+            public boolean onQueryTextChange(String newText) {
+                filterRecipesByQuery(newText);
+                return true;
             }
         });
 
@@ -74,15 +77,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        handler.removeCallbacks(runnable);
-    }
+    private void filterRecipesByQuery(String query) {
+        filteredRecipes.clear();
+        if (query.isEmpty()) {
+            filteredRecipes.addAll(recipes);
+        } else {
+            String lowerCaseQuery = query.toLowerCase();
+            for (Recipe recipe : recipes) {
+                if (recipe.getTitle().toLowerCase().contains(lowerCaseQuery)) {
+                    filteredRecipes.add(recipe);
+                }
+            }
+        }
+        recipeAdapter.updateRecipes(filteredRecipes);
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        handler.postDelayed(runnable, 3000);
+        if (filteredRecipes.isEmpty()) {
+            emptyView.setVisibility(View.VISIBLE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+        }
     }
 }

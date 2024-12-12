@@ -5,14 +5,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
 
-    private final List<Recipe> recipes;
     private final List<Recipe> filteredRecipes;
     private final OnRecipeClickListener onRecipeClickListener;
 
@@ -21,7 +22,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     }
 
     public RecipeAdapter(ArrayList<Recipe> recipes, OnRecipeClickListener onRecipeClickListener) {
-        this.recipes = recipes;
         this.filteredRecipes = new ArrayList<>(recipes);
         this.onRecipeClickListener = onRecipeClickListener;
     }

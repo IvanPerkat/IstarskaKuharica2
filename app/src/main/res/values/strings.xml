@@ -49,4 +49,9 @@
     <string name="plava_istra">Plava Istra</string>
     <string name="zelena_istra">Zelena Istra</string>
     <string name="no_recipes_found">No recipes found</string>
+    <string name="home">Home</string>
+    <string name="favourites">Favourites</string>
+    <string name="tabHome">Home</string>
+    <string name="tabFavourites">Favourites</string>
+    <string name="tabProfile">Profile</string>
 </resources>
